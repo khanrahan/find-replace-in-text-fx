@@ -34,9 +34,12 @@ To Install:
 from __future__ import print_function
 from PySide2 import QtWidgets, QtCore
 
+__title__ = "Find and Replace in Text TimelineFX"
+__version_info__ = (0, 1, 1)
+__version__ = ".".join([str(num) for num in __version_info__])
 
+MESSAGE_PREFIX = "[PYTHON HOOK]"
 TEMP_SETUP = "/var/tmp/temp"
-VERSION = (0, 0, 1)
 
 
 class FlameButton(QtWidgets.QPushButton):
@@ -150,6 +153,9 @@ class FindReplaceInTextFX(object):
         self.selection = selection
         self.target = kwargs["target"]
 
+
+        self.message("{} v{}".format(__title__, __version__))
+        self.message("Script called from {}".format(__file__))
         self.main_window()
 
 
@@ -214,6 +220,13 @@ class FindReplaceInTextFX(object):
         return filtered
 
 
+    @staticmethod
+    def message(string):
+        """Print to the shell window."""
+
+        print(" ".join([MESSAGE_PREFIX, string]))
+
+
     def find_and_write(self, ttg_node_file, find, replace):
         """Takes a path to a ttg setup and searches for a string and replaces
         it."""
@@ -269,6 +282,8 @@ class FindReplaceInTextFX(object):
                                                     find,
                                                     replace)
                                 self.load_text_timelineFX(segment, TEMP_SETUP)
+                                self.message("Replaced {} for {} in {}".format(
+                                    find, replace, timeline.name.get_value()))
 
 
     def main_window(self):
@@ -291,8 +306,7 @@ class FindReplaceInTextFX(object):
         self.window = QtWidgets.QWidget()
         self.window.setMinimumSize(600, 130)
         self.window.setStyleSheet('background-color: #272727')
-        self.window.setWindowTitle("Find and Replace in Text TimelineFX v{}".format(
-                                   ".".join(str(num) for num in VERSION)))
+        self.window.setWindowTitle("{} v{}".format(__title__, __version__))
 
         # FlameLineEdit class needs this
         self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
