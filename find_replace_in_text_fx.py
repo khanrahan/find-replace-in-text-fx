@@ -35,7 +35,7 @@ from __future__ import print_function
 from PySide2 import QtWidgets, QtCore
 
 __title__ = "Find and Replace in Text TimelineFX"
-__version_info__ = (0, 1, 1)
+__version_info__ = (0, 1, 2)
 __version__ = ".".join([str(num) for num in __version_info__])
 
 MESSAGE_PREFIX = "[PYTHON HOOK]"
@@ -301,6 +301,7 @@ class FindReplaceInTextFX(object):
                                        self.replace.text())
 
             self.window.close()
+            self.message("Done!")
 
 
         self.window = QtWidgets.QWidget()
