@@ -1,5 +1,15 @@
+
 '''
-Find and Replace in Text TimelineFX
+Script Name: Find and Replace in Text TimelineFX
+Written by: Kieran Hanrahan
+
+Script Version: 1.0.0
+Flame Version: 2021.1
+
+URL: http://github.com/khanrahan/apply-text-timelinefx-to-segments
+
+Creation Date: 07.21.22
+Update Date: 07.19.23
 
 URL:
     https://github.com/khanrahan/find-replace-in-text-fx
