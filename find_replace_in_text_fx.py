@@ -1,4 +1,4 @@
-"""
+'''
 Find and Replace in Text TimelineFX
 
 URL:
@@ -6,20 +6,20 @@ URL:
 
 Description:
 
-    This script will find a specified search string within a Text Timeline FX and
+    This script will find a specified search string within a Text TimelineFX and
     replace that search term with something else without having to enter the Text
     editor.
 
-    Works on segments or sequences containing Text Timeline FX.  For sequences, it will
-    find all segments that have Text Timeline FX and perform the find & replace.
+    Works on segments or sequences containing Text TimelineFX.  For sequences, it will
+    find all segments that have Text TimelineFX and perform the find & replace.
 
 Menus:
 
     Right-click selected segments in a sequence -> Edit... -> Find and Replace in Text
-        Timeline FX
+        TimelineFX
 
     Right-click selected sequence or sequences -> Edit... -> Find and Replace in Text
-        Timeline FX
+        TimelineFX
 
 To Install:
 
@@ -28,286 +28,542 @@ To Install:
 
     For a specific user, copy this file to:
     /opt/Autodesk/user/<user name>/python
-"""
+'''
 
 
 from __future__ import print_function
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtCore, QtGui, QtWidgets
 
-__title__ = "Find and Replace in Text TimelineFX"
-__version_info__ = (0, 1, 2)
-__version__ = ".".join([str(num) for num in __version_info__])
+TITLE = 'Find and Replace in Text TimelineFX'
+VERSION_INFO = (1, 0, 0)
+VERSION = '.'.join([str(num) for num in VERSION_INFO])
+TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
+MESSAGE_PREFIX = '[PYTHON HOOK]'
 
-MESSAGE_PREFIX = "[PYTHON HOOK]"
-TEMP_SETUP = "/var/tmp/temp"
+TEMP_SETUP = '/var/tmp/temp'
 
 
 class FlameButton(QtWidgets.QPushButton):
-    """
-    Custom Qt Flame Button Widget
-    To use:
-    button = FlameButton('Button Name', do_when_pressed, window)
-    """
+    '''
+    Custom Qt Flame Button Widget v2.1
 
-    def __init__(self, button_name, do_when_pressed, parent_window, *args, **kwargs):
-        super(FlameButton, self).__init__(*args, **kwargs)
+    button_name: button text [str]
+    connect: execute when clicked [function]
+    button_color: (optional) normal, blue [str]
+    button_width: (optional) default is 150 [int]
+    button_max_width: (optional) default is 150 [int]
+
+    Usage:
+
+        button = FlameButton(
+            'Button Name', do_something__when_pressed, button_color='blue')
+    '''
+
+    def __init__(self, button_name, connect, button_color='normal', button_width=150,
+                 button_max_width=150):
+        super(FlameButton, self).__init__()
 
         self.setText(button_name)
-        self.setParent(parent_window)
-        self.setMinimumSize(QtCore.QSize(110, 28))
-        self.setMaximumSize(QtCore.QSize(110, 28))
+        self.setMinimumSize(QtCore.QSize(button_width, 28))
+        self.setMaximumSize(QtCore.QSize(button_max_width, 28))
         self.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.clicked.connect(do_when_pressed)
-        self.setStyleSheet("""QPushButton {color: #9a9a9a;
-                                           background-color: #424142;
-                                           border-top: 1px inset #555555;
-                                           border-bottom: 1px inset black;
-                                           font: 14px 'Discreet'}
-                           QPushButton:pressed {color: #d9d9d9;
-                                                background-color: #4f4f4f;
-                                                border-top: 1px inset #666666;
-                                                font: italic}
-                           QPushButton:disabled {color: #747474;
-                                                 background-color: #353535;
-                                                 border-top: 1px solid #444444;
-                                                 border-bottom: 1px solid #242424}
-                           QToolTip {color: black;
-                                     background-color: #ffffde;
-                                     border: black solid 1px}""")
+        self.clicked.connect(connect)
+        if button_color == 'normal':
+            self.setStyleSheet('''
+                QPushButton {
+                    color: rgb(154, 154, 154);
+                    background-color: rgb(58, 58, 58);
+                    border: none;
+                    font: 14px "Discreet"}
+                QPushButton:hover {
+                    border: 1px solid rgb(90, 90, 90)}
+                QPushButton:pressed {
+                    color: rgb(159, 159, 159);
+                    background-color: rgb(66, 66, 66);
+                    border: 1px solid rgb(90, 90, 90)}
+                QPushButton:disabled {
+                    color: rgb(116, 116, 116);
+                    background-color: rgb(58, 58, 58);
+                    border: none}
+                QToolTip {
+                    color: rgb(170, 170, 170);
+                    background-color: rgb(71, 71, 71);
+                    border: 10px solid rgb(71, 71, 71)}''')
+        elif button_color == 'blue':
+            self.setStyleSheet('''
+                QPushButton {
+                    color: rgb(190, 190, 190);
+                    background-color: rgb(0, 110, 175);
+                    border: none;
+                    font: 12px "Discreet"}
+                QPushButton:hover {
+                    border: 1px solid rgb(90, 90, 90)}
+                QPushButton:pressed {
+                    color: rgb(159, 159, 159);
+                    border: 1px solid rgb(90, 90, 90)
+                QPushButton:disabled {
+                    color: rgb(116, 116, 116);
+                    background-color: rgb(58, 58, 58);
+                    border: none}
+                QToolTip {
+                    color: rgb(170, 170, 170);
+                    background-color: rgb(71, 71, 71);
+                    border: 10px solid rgb(71, 71, 71)}''')
 
 
 class FlameLabel(QtWidgets.QLabel):
-    """
-    Custom Qt Flame Label Widget
-    For different label looks set label_type as: 'normal', 'background', or 'outline'
-    To use:
-    label = FlameLabel('Label Name', 'normal', window)
-    """
+    '''
+    Custom Qt Flame Label Widget v2.1
 
-    def __init__(self, label_name, label_type, parent_window, *args, **kwargs):
-        super(FlameLabel, self).__init__(*args, **kwargs)
+    label_name:  text displayed [str]
+    label_type:  (optional) select from different styles:
+                 normal, underline, background. default is normal [str]
+    label_width: (optional) default is 150 [int]
+
+    Usage:
+
+        label = FlameLabel('Label Name', 'normal', 300)
+    '''
+
+    def __init__(self, label_name, label_type='normal', label_width=150):
+        super(FlameLabel, self).__init__()
 
         self.setText(label_name)
-        self.setParent(parent_window)
-        self.setMinimumSize(110, 28)
+        self.setMinimumSize(label_width, 28)
         self.setMaximumHeight(28)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # Set label stylesheet based on label_type
 
         if label_type == 'normal':
-            self.setStyleSheet("""QLabel {color: #9a9a9a;
-                                          border-bottom: 1px inset #282828;
-                                          font: 14px 'Discreet'}
-                                  QLabel:disabled {color: #6a6a6a}""")
+            self.setStyleSheet('''
+                QLabel {
+                    color: rgb(154, 154, 154);
+                    font: 14px "Discreet"}
+                QLabel:disabled {
+                    color: rgb(106, 106, 106)}''')
+        elif label_type == 'underline':
+            self.setAlignment(QtCore.Qt.AlignCenter)
+            self.setStyleSheet('''
+                QLabel {
+                    color: rgb(154, 154, 154);
+                    border-bottom: 1px inset rgb(40, 40, 40);
+                    font: 14px "Discreet"}
+                QLabel:disabled {
+                    color: rgb(106, 106, 106)}''')
         elif label_type == 'background':
-            self.setAlignment(QtCore.Qt.AlignCenter)
-            self.setStyleSheet("""QLabel {color: #9a9a9a;
-                                          background-color: #393939;
-                                          font: 14px 'Discreet'}
-                                  QLabel:disabled {color: #6a6a6a}""")
-        elif label_type == 'outline':
-            self.setAlignment(QtCore.Qt.AlignCenter)
-            self.setStyleSheet("""QLabel {color: #9a9a9a;
-                                          background-color: #212121;
-                                          border: 1px solid #404040;
-                                          font: 14px 'Discreet'}
-                                  QLabel:disabled {color: #6a6a6a}""")
+            self.setStyleSheet('''
+                QLabel {
+                    color: rgb(154, 154, 154);
+                    background-color: rgb(30, 30, 30);
+                    padding-left: 5px;
+                    font: 14px "Discreet"}
+                QLabel:disabled {
+                    color: rgb(106, 106, 106)}''')
 
 
 class FlameLineEdit(QtWidgets.QLineEdit):
-    """
-    Custom Qt Flame Line Edit Widget
-    Main window should include this: window.setFocusPolicy(QtCore.Qt.StrongFocus)
-    To use:
-    line_edit = FlameLineEdit('Some text here', window)
-    """
+    '''
+    Custom Qt Flame Line Edit Widget v2.1
 
-    def __init__(self, text, parent_window, *args, **kwargs):
-        super(FlameLineEdit, self).__init__(*args, **kwargs)
+    Main window should include this: window.setFocusPolicy(QtCore.Qt.StrongFocus)
+
+    text: text show [str]
+    width: (optional) width of widget. default is 150. [int]
+    max_width: (optional) maximum width of widget. default is 2000. [int]
+
+    Usage:
+
+        line_edit = FlameLineEdit('Some text here')
+    '''
+
+    def __init__(self, text, width=150, max_width=2000):
+        super(FlameLineEdit, self).__init__()
 
         self.setText(text)
-        self.setParent(parent_window)
         self.setMinimumHeight(28)
-        self.setMinimumWidth(110)
-        # self.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.setStyleSheet("""QLineEdit {color: #9a9a9a;
-                                         background-color: #373e47;
-                                         selection-color: #262626;
-                                         selection-background-color: #b8b1a7;
-                                         font: 14px 'Discreet'}
-                              QLineEdit:focus {background-color: #474e58}
-                              QLineEdit:disabled {color: #6a6a6a;
-                                                  background-color: #373737}
-                              QToolTip {color: black;
-                                        background-color: #ffffde;
-                                        border: black solid 1px}""")
+        self.setMinimumWidth(width)
+        self.setMaximumWidth(max_width)
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.setStyleSheet('''
+            QLineEdit {
+                color: rgb(154, 154, 154);
+                background-color: rgb(55, 65, 75);
+                selection-color: rgb(38, 38, 38);
+                selection-background-color: rgb(184, 177, 167);
+                border: 1px solid rgb(55, 65, 75);
+                padding-left: 5px;
+                font: 14px "Discreet"}
+            QLineEdit:focus {background-color: rgb(73, 86, 99)}
+            QLineEdit:hover {border: 1px solid rgb(90, 90, 90)}
+            QLineEdit:disabled {
+                color: rgb(106, 106, 106);
+                background-color: rgb(55, 55, 55);
+                border: 1px solid rgb(55, 55, 55)}
+            QToolTip {
+                color: rgb(170, 170, 170);
+                background-color: rgb(71, 71, 71);
+                border: none}''')
+
+
+class FlameProgressWindow(QtWidgets.QDialog):
+    '''
+    Custom Qt Flame Progress Window
+
+    FlameProgressWindow(window_title, num_to_do[, text=None, enable_done_button=False,
+                        parent=None])
+
+    window_title: text shown in top left of window ie. Rendering... [str]
+    num_to_do: total number of operations to do [int]
+    text: message to show in window [str]
+    enable_cancel_button: enable cancel button, default is False [bool]
+
+    Examples:
+
+        To create window:
+
+            self.progress_window = FlameProgressWindow(
+                'Rendering...', 10,
+                text='Rendering: Batch 1 of 5',
+                enable_done_button=True)
+
+        To update progress bar:
+
+            self.progress_window.set_progress_value(number_of_things_done)
+
+        To enable or disable done button - True or False:
+
+            self.progress_window.enable_done_button(True)
+    '''
+
+    def __init__(
+            self,
+            window_title,
+            num_to_do,
+            text='',
+            window_bar_color='blue',
+            enable_cancel_button=True,
+            parent=None):
+
+        super(FlameProgressWindow, self).__init__()
+
+        self.cancelled = False
+
+        # Check argument types
+
+        if not isinstance(window_title, str):
+            raise TypeError('FlameProgressWindow: window_title must be a string')
+        if not isinstance(num_to_do, int):
+            raise TypeError('FlameProgressWindow: num_to_do must be an integer')
+        if not isinstance(text, str):
+            raise TypeError('FlameProgressWindow: text must be a string')
+        if not isinstance(enable_cancel_button, bool):
+            raise TypeError('FlameProgressWindow: enable_done_button must be a boolean')
+        if window_bar_color not in ['blue', 'red', 'green', 'yellow', 'gray', 'teal']:
+            raise ValueError('FlameWindow: Window Bar Color must be one of: '
+                             'blue, red, green, yellow, gray, teal.')
+
+        self.window_bar_color = window_bar_color
+
+        # Build window
+
+        # Mac needs this to close the window
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        self.setWindowFlags(
+                QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.setMinimumSize(QtCore.QSize(500, 330))
+        self.setMaximumSize(QtCore.QSize(500, 330))
+        self.setStyleSheet('background-color: rgb(36, 36, 36)')
+
+        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
+                  (resolution.height() / 2) - (self.frameSize().height() / 2))
+
+        self.setParent(parent)
+
+        self.grid = QtWidgets.QGridLayout()
+
+        self.main_label = FlameLabel(window_title, label_width=500)
+        self.main_label.setStyleSheet('''
+            color: rgb(154, 154, 154);
+            font: 18px "Discreet"''')
+        self.message_text_edit = QtWidgets.QTextEdit('')
+        self.message_text_edit.setDisabled(True)
+        self.message_text_edit.setStyleSheet('''
+            QTextEdit {
+                color: rgb(154, 154, 154);
+                background-color: rgb(36, 36, 36);
+                selection-color: rgb(190, 190, 190);
+                selection-background-color: rgb(36, 36, 36);
+                border: none;
+                padding-left: 20px;
+                padding-right: 20px;
+                font: 12px "Discreet"}''')
+        self.message_text_edit.setText(text)
+
+        # Progress bar
+
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setMaximum(num_to_do)
+        self.progress_bar.setMaximumHeight(5)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setStyleSheet('''
+            QProgressBar {
+                color: rgb(154, 154, 154);
+                background-color: rgb(45, 45, 45);
+                font: 14px "Discreet";
+                border: none}
+            QProgressBar:chunk {
+                background-color: rgb(0, 110, 176)}''')
+
+        self.cancel_button = FlameButton(
+                'Cancel',
+                self.cancel,
+                button_color='normal',
+                button_width=110)
+        self.cancel_button.setEnabled(enable_cancel_button)
+        self.cancel_button.setVisible(enable_cancel_button)
+
+        # Layout
+
+        self.grid.addWidget(self.main_label, 0, 0)
+        self.grid.setRowMinimumHeight(1, 30)
+        self.grid.addWidget(self.message_text_edit, 2, 0, 1, 4)
+        self.grid.addWidget(self.progress_bar, 8, 0, 1, 7)
+        self.grid.setRowMinimumHeight(9, 30)
+        self.grid.addWidget(self.cancel_button, 10, 6)
+        self.grid.setRowMinimumHeight(11, 30)
+
+        self.setLayout(self.grid)
+        self.show()
+
+    def set_text(self, text):
+
+        self.message_text_edit.setText(text)
+
+    def set_progress_value(self, value):
+
+        self.progress_bar.setValue(value)
+        QtWidgets.QApplication.processEvents()
+
+    def enable_cancel_button(self, value):
+
+        if value:
+            self.cancel_button.setEnabled(True)
+        else:
+            self.cancel_button.setEnabled(False)
+
+    def cancel(self):
+
+        self.cancelled = True
+        self.close()
+
+    def paintEvent(self, event):
+
+        painter = QtGui.QPainter(self)
+        if self.window_bar_color == 'blue':
+            bar_color = QtGui.QColor(0, 110, 176)
+        elif self.window_bar_color == 'red':
+            bar_color = QtGui.QColor(200, 29, 29)
+        elif self.window_bar_color == 'green':
+            bar_color = QtGui.QColor(0, 180, 13)
+        elif self.window_bar_color == 'yellow':
+            bar_color = QtGui.QColor(251, 181, 73)
+        elif self.window_bar_color == 'gray':
+            bar_color = QtGui.QColor(71, 71, 71)
+        elif self.window_bar_color == 'teal':
+            bar_color = QtGui.QColor(14, 110, 106)
+
+        # painter.setPen(QtGui.QPen(QtGui.QColor(71, 71, 71), .5, QtCore.Qt.SolidLine))
+        # painter.drawLine(0, 40, 500, 40)
+
+        # Draw line below title that goes from side bar color to grey
+
+        gradient = QtGui.QLinearGradient(0, 0, 500, 40)
+        gradient.setColorAt(1, QtGui.QColor(71, 71, 71))
+        gradient.setColorAt(0, bar_color)
+        painter.setPen(QtGui.QPen(gradient, .5, QtCore.Qt.SolidLine))
+        painter.drawLine(0, 40, 500, 40)
+
+        # Draw bar on left side of window
+
+        painter.setPen(QtGui.QPen(bar_color, 6, QtCore.Qt.SolidLine))
+        painter.drawLine(0, 0, 0, 330)
+
+    def mousePressEvent(self, event):
+
+        self.oldPosition = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+
+        try:
+            delta = QtCore.QPoint(event.globalPos() - self.oldPosition)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPosition = event.globalPos()
+        except:
+            pass
 
 
 class FindReplaceInTextFX(object):
-    """Find and replace some text within a Text timelineFX."""
-
+    '''Find and replace some text within a Text timelineFX.'''
 
     def __init__(self, selection, **kwargs):
 
         self.selection = selection
-        self.target = kwargs["target"]
+        self.target = kwargs['target']
 
+        self.message(TITLE_VERSION)
+        self.message('Script called from {}'.format(__file__))
 
-        self.message("{} v{}".format(__title__, __version__))
-        self.message("Script called from {}".format(__file__))
+        self.segments = []
+
+        if self.target == 'segments':
+            self.filter_segments()
+        if self.target == 'sequences':
+            self.filter_sequences()
+
+        self.message('Found {} segments with Text TimelineFX...'.format(
+                len(self.segments)))
+
         self.main_window()
 
+    @staticmethod
+    def save_text_timeline_fx(segment, setup_path):
+        '''Save out a TTG node setup.'''
+
+        for timeline_fx in segment.effects:
+            if timeline_fx.type == 'Text':
+                timeline_fx.save_setup(setup_path)
 
     @staticmethod
-    def save_text_timelineFX(segment, setup_path):
-        """Save out a TTG node setup."""
+    def load_text_timeline_fx(segment, setup_path):
+        '''Load a TTG node setup to segment.'''
 
-        for timelineFX in segment.effects:
-            if timelineFX.type == "Text":
-                timelineFX.save_setup(setup_path)
-
-
-    @staticmethod
-    def load_text_timelineFX(segment, setup_path):
-        """Load a TTG node setup to segment."""
-
-        for timelineFX in segment.effects:
-            if timelineFX.type == "Text":
-                timelineFX.load_setup(setup_path)
-
+        for timeline_fx in segment.effects:
+            if timeline_fx.type == 'Text':
+                timeline_fx.load_setup(setup_path)
 
     @staticmethod
-    def add_timelineFX(segment, effect_type):
-        """Add Timeline FX of effect_type to segment."""
+    def add_timeline_fx(segment, effect_type):
+        '''Add Timeline FX of effect_type to segment.'''
 
         segment.create_effect(effect_type)
 
-
     @staticmethod
-    def remove_timelineFX(segment, effect_type):
-        """Remove Timeline FX of specified type from segment.  You have to remove before
-        you can load a setup.  The setup load will not overwrite."""
+    def remove_timeline_fx(segment, effect_type):
+        '''Remove Timeline FX of specified type from segment.  You have to remove before
+        you can load a setup.  The setup load will not overwrite.'''
 
         import flame
 
-        for timelineFX in segment.effects:
-            if timelineFX.type == effect_type:
-                flame.delete(timelineFX)
-
+        for timeline_fx in segment.effects:
+            if timeline_fx.type == effect_type:
+                flame.delete(timeline_fx)
 
     @staticmethod
     def convert_to_ttg_text(string):
-        """Returns TTG style string"""
+        '''Returns TTG style string'''
 
-        return " ".join(str(ord(character)) for character in list(string))
-
-
-    @staticmethod
-    def filter_segments(selection):
-        """Needed to filter the selection results of a segment.  flame api
-        returns the segment or segments that are selected AND the timelineFX
-        on those segments."""
-
-        import flame
-
-        filtered = []
-
-        for item in selection:
-            if isinstance(item, flame.PySegment):
-                filtered.append(item)
-
-        return filtered
-
+        return ' '.join(str(ord(character)) for character in list(string))
 
     @staticmethod
     def message(string):
-        """Print to the shell window."""
+        '''Print to the shell window.'''
 
-        print(" ".join([MESSAGE_PREFIX, string]))
+        print(' '.join([MESSAGE_PREFIX, string]))
 
+    def filter_segments(self):
+        '''Needed to filter the selection results of a segment.  Flame API
+        returns the segment or segments that are selected AND the timelineFX
+        on those segments.'''
 
-    def find_and_write(self, ttg_node_file, find, replace):
-        """Takes a path to a ttg setup and searches for a string and replaces
-        it."""
+        import flame
 
-        ttg_node_file += ".ttg_node" #append extension
+        for item in self.selection:
+            if isinstance(item, flame.PySegment):
+                for effect in item.effects:
+                    if effect.type == 'Text':
+                        self.segments.append(item)
 
-        try:
-            with open(ttg_node_file, newline='') as ttg:  #python3
-                file_data = ttg.read()
-        except TypeError:
-            with open(ttg_node_file, 'rU') as ttg:  #python2.7
-                file_data = ttg.read()
-
-        #with open(ttg_node_file, 'rU') as file:
-        #    file_data = file.read()
-
-        new = file_data.replace(self.convert_to_ttg_text(find),
-                                self.convert_to_ttg_text(replace))
-
-        with open(ttg_node_file, "w") as ttg:
-            ttg.write(new)
-
-
-    def process_segments(self, find, replace):
-        """Bulk process every selected segment."""
-
-
-        segments = self.filter_segments(self.selection)
-
-        for segment in segments:
-
-            self.save_text_timelineFX(segment, TEMP_SETUP)
-            self.remove_timelineFX(segment, "Text")
-            self.add_timelineFX(segment, "Text")
-            self.find_and_write(TEMP_SETUP, find, replace)
-            self.load_text_timelineFX(segment, TEMP_SETUP)
-
-
-    def process_sequences(self, find, replace):
-        """Bulk process every segment found in the selected sequences."""
-
+    def filter_sequences(self):
+        '''Filter out just segments that have Text TimelineFX.'''
 
         for timeline in self.selection:
             for version in timeline.versions:
                 for track in version.tracks:
                     for segment in track.segments:
                         for effect in segment.effects:
-                            if effect.type == "Text":
-                                self.save_text_timelineFX(segment, TEMP_SETUP)
-                                self.remove_timelineFX(segment, "Text")
-                                self.add_timelineFX(segment, "Text")
-                                self.find_and_write(TEMP_SETUP,
-                                                    find,
-                                                    replace)
-                                self.load_text_timelineFX(segment, TEMP_SETUP)
-                                self.message("Replaced {} for {} in {}".format(
-                                    find, replace, timeline.name.get_value()))
+                            if effect.type == 'Text':
+                                self.segments.append(segment)
 
+    def find_and_write(self, ttg_node_file, find, replace):
+        '''Takes a path to a ttg setup and searches for a string and replaces
+        it.'''
+
+        ttg_node_file += '.ttg_node'  # append extension
+
+        try:
+            with open(ttg_node_file, newline='') as ttg:  # python3
+                file_data = ttg.read()
+        except TypeError:
+            with open(ttg_node_file, 'rU') as ttg:  # python2.7
+                file_data = ttg.read()
+
+        new = file_data.replace(self.convert_to_ttg_text(find),
+                                self.convert_to_ttg_text(replace))
+
+        with open(ttg_node_file, 'w') as ttg:
+            ttg.write(new)
+
+    def process_segment(self, segment, find, replace):
+        ''' '''
+
+        self.save_text_timeline_fx(segment, TEMP_SETUP)
+        self.remove_timeline_fx(segment, 'Text')
+        self.add_timeline_fx(segment, 'Text')
+        self.find_and_write(TEMP_SETUP, find, replace)
+        self.load_text_timeline_fx(segment, TEMP_SETUP)
 
     def main_window(self):
-        """The only popup window."""
+        '''The only popup window.'''
 
         def okay_button():
-            """Execute these when OK is pressed."""
-
-            if self.target == "segments":
-                self.process_segments(self.find.text(),
-                                      self.replace.text())
-
-            if self.target == "sequences":
-                self.process_sequences(self.find.text(),
-                                       self.replace.text())
+            '''Execute these when OK is pressed.'''
 
             self.window.close()
-            self.message("Done!")
 
+            self.progress_window = FlameProgressWindow('Progress', len(self.segments))
+
+            for segment in self.segments:
+                if self.progress_window.cancelled:
+                    break
+
+                self.progress_window.set_text(
+                        'Replacing {} with {} on {}'.format(
+                            self.find.text(),
+                            self.replace.text(),
+                            segment.name.get_value()))
+
+                self.process_segment(segment, self.find.text(), self.replace.text())
+
+                self.progress_window.set_progress_value(self.segments.index(segment) + 1)
+
+            self.progress_window.close()
+
+            if self.progress_window.cancelled:
+                self.message('Cancelled!')
+            else:
+                self.message('Done!')
 
         self.window = QtWidgets.QWidget()
+
         self.window.setMinimumSize(600, 130)
         self.window.setStyleSheet('background-color: #272727')
-        self.window.setWindowTitle("{} v{}".format(__title__, __version__))
+        self.window.setWindowTitle(TITLE_VERSION)
+
+        # Mac needs this to close the window
+        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # FlameLineEdit class needs this
         self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -315,27 +571,26 @@ class FindReplaceInTextFX(object):
         # Center Window
         resolution = QtWidgets.QDesktopWidget().screenGeometry()
 
-        self.window.move((resolution.width() / 2) - (self.window.frameSize().width() / 2),
-                         (resolution.height() / 2) - (self.window.frameSize().height() / 2))
+        self.window.move(
+                (resolution.width() / 2) - (self.window.frameSize().width() / 2),
+                (resolution.height() / 2) - (self.window.frameSize().height() / 2))
 
         # Labels
-        self.find_label = FlameLabel('Find', 'normal', self.window)
-        self.replace_label = FlameLabel('Replace', 'normal', self.window)
+        self.find_label = FlameLabel('Find', 'normal')
+        self.replace_label = FlameLabel('Replace', 'normal')
 
         # Line Edits
-        self.find = FlameLineEdit("", self.window)
-        self.replace = FlameLineEdit("", self.window)
+        self.find = FlameLineEdit('')
+        self.replace = FlameLineEdit('')
 
         # Buttons
-        self.ok_btn = FlameButton('Ok', okay_button, self.window)
-        self.ok_btn.setStyleSheet('background: #732020')
-
-        self.cancel_btn = FlameButton("Cancel", self.window.close, self.window)
+        self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
+        self.cancel_btn = FlameButton('Cancel', self.window.close)
 
         # Tab Order
-        #self.window.setTabOrder(self.find, self.replace)
-        #self.window.setTabOrder(self.replace, self.ok_btn)
-        #self.window.setTabOrder(self.ok_btn, self.cancel_btn)
+        # self.window.setTabOrder(self.find, self.replace)
+        # self.window.setTabOrder(self.replace, self.ok_btn)
+        # self.window.setTabOrder(self.ok_btn, self.cancel_btn)
 
         # Layout
         self.grid = QtWidgets.QGridLayout()
@@ -347,16 +602,16 @@ class FindReplaceInTextFX(object):
         self.grid.addWidget(self.replace_label, 1, 0)
         self.grid.addWidget(self.replace, 1, 1)
 
-        self.hbox03 = QtWidgets.QHBoxLayout()
-        self.hbox03.addStretch(1)
-        self.hbox03.addWidget(self.cancel_btn)
-        self.hbox03.addWidget(self.ok_btn)
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.hbox.addStretch(1)
+        self.hbox.addWidget(self.cancel_btn)
+        self.hbox.addWidget(self.ok_btn)
 
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setMargin(20)
         self.vbox.addLayout(self.grid)
         self.vbox.insertSpacing(2, 20)
-        self.vbox.addLayout(self.hbox03)
+        self.vbox.addLayout(self.hbox)
 
         self.window.setLayout(self.vbox)
         self.window.show()
@@ -365,19 +620,19 @@ class FindReplaceInTextFX(object):
 
 
 def find_replace_segments(selection):
-    """Call the class with a target destination."""
+    '''Call the class with a target destination.'''
 
-    FindReplaceInTextFX(selection, target="segments")
+    FindReplaceInTextFX(selection, target='segments')
 
 
 def find_replace_sequences(selection):
-    """Call the class with a target destination."""
+    '''Call the class with a target destination.'''
 
-    FindReplaceInTextFX(selection, target="sequences")
+    FindReplaceInTextFX(selection, target='sequences')
 
 
 def scope_timeline(selection):
-    """Return True if selection is a sequence."""
+    '''Return True if selection is a sequence.'''
 
     import flame
 
@@ -388,7 +643,7 @@ def scope_timeline(selection):
 
 
 def scope_timeline_segment(selection):
-    """Return True if selection is a timeline segment."""
+    '''Return True if selection is a timeline segment.'''
 
     import flame
 
@@ -400,19 +655,19 @@ def scope_timeline_segment(selection):
 
 def get_media_panel_custom_ui_actions():
 
-    return [{'name': "Edit...",
-             'actions': [{'name': "Find and Replace in Text TimelineFX",
+    return [{'name': 'Edit...',
+             'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
                           'execute': find_replace_sequences,
-                          'minimumVersion': "2020.3.1"}]
+                          'minimumVersion': '2021.1'}]
             }]
 
 
 def get_timeline_custom_ui_actions():
 
-    return [{'name': "Edit...",
-             'actions': [{'name': "Find and Replace in Text TimelineFX",
+    return [{'name': 'Edit...',
+             'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
                           'execute': find_replace_segments,
-                          'minimumVersion': "2020.3.1"}]
+                          'minimumVersion': '2021.1'}]
             }]
