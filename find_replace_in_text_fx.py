@@ -43,6 +43,7 @@ To Install:
 
 from __future__ import print_function
 from PySide2 import QtCore, QtGui, QtWidgets
+import flame
 
 TITLE = 'Find and Replace in Text TimelineFX'
 VERSION_INFO = (1, 0, 0)
@@ -465,8 +466,6 @@ class FindReplaceInTextFX(object):
         '''Remove Timeline FX of specified type from segment.  You have to remove before
         you can load a setup.  The setup load will not overwrite.'''
 
-        import flame
-
         for timeline_fx in segment.effects:
             if timeline_fx.type == effect_type:
                 flame.delete(timeline_fx)
@@ -487,8 +486,6 @@ class FindReplaceInTextFX(object):
         '''Needed to filter the selection results of a segment.  Flame API
         returns the segment or segments that are selected AND the timelineFX
         on those segments.'''
-
-        import flame
 
         for item in self.selection:
             if isinstance(item, flame.PySegment):
@@ -644,8 +641,6 @@ def find_replace_sequences(selection):
 def scope_timeline(selection):
     '''Return True if selection is a sequence.'''
 
-    import flame
-
     for item in selection:
         if isinstance(item, flame.PySequence):
             return True
@@ -654,8 +649,6 @@ def scope_timeline(selection):
 
 def scope_timeline_segment(selection):
     '''Return True if selection is a timeline segment.'''
-
-    import flame
 
     for item in selection:
         if isinstance(item, flame.PySegment):
