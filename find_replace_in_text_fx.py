@@ -440,6 +440,21 @@ class FindReplaceInTextFX(object):
         self.main_window()
 
     @staticmethod
+    def get_parent_sequence(child):
+        '''Returns object of the container sequence for the given flame object.'''
+
+        parents = []
+
+        while child:
+            if isinstance(child, flame.PySequence):
+                break
+            child = child.parent
+            parents.append(child)
+
+        parent_sequence = parents[-1]
+        return parent_sequence
+
+    @staticmethod
     def save_text_timeline_fx(segment, setup_path):
         '''Save out a TTG node setup.'''
 
@@ -547,10 +562,11 @@ class FindReplaceInTextFX(object):
                     break
 
                 self.progress_window.set_text(
-                        'Replacing {} with {} on {}'.format(
+                        'Replacing {} with {} on {} in {}'.format(
                             self.find.text(),
                             self.replace.text(),
-                            segment.name.get_value()))
+                            segment.name.get_value(),
+                            self.get_parent_sequence(segment).name.get_value()))
 
                 self.process_segment(segment, self.find.text(), self.replace.text())
 
