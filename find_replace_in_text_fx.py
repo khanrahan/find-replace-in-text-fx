@@ -6,13 +6,10 @@ Written by: Kieran Hanrahan
 Script Version: 1.0.0
 Flame Version: 2021.1
 
-URL: http://github.com/khanrahan/apply-text-timelinefx-to-segments
+URL: https://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
 Update Date: 07.19.23
-
-URL:
-    https://github.com/khanrahan/find-replace-in-text-fx
 
 Description:
 
