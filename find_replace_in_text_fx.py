@@ -3,13 +3,13 @@
 Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
-Script Version: 1.0.0
+Script Version: 1.0.1
 Flame Version: 2021.1
 
 URL: https://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
-Update Date: 07.19.23
+Update Date: 07.31.23
 
 Description:
 
@@ -43,7 +43,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 import flame
 
 TITLE = 'Find and Replace in Text TimelineFX'
-VERSION_INFO = (1, 0, 0)
+VERSION_INFO = (1, 0, 1)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
 MESSAGE_PREFIX = '[PYTHON HOOK]'
@@ -501,9 +501,11 @@ class FindReplaceInTextFX(object):
 
         for item in self.selection:
             if isinstance(item, flame.PySegment):
-                for effect in item.effects:
-                    if effect.type == 'Text':
-                        self.segments.append(item)
+                # hidden segments cause crash
+                if item.hidden.get_value():
+                    for effect in item.effects:
+                        if effect.type == 'Text':
+                            self.segments.append(item)
 
     def filter_sequences(self):
         '''Filter out just segments that have Text TimelineFX.'''
@@ -512,9 +514,11 @@ class FindReplaceInTextFX(object):
             for version in timeline.versions:
                 for track in version.tracks:
                     for segment in track.segments:
-                        for effect in segment.effects:
-                            if effect.type == 'Text':
-                                self.segments.append(segment)
+                        # hidden segments cause crash
+                        if not segment.hidden.get_value():
+                            for effect in segment.effects:
+                                if effect.type == 'Text':
+                                    self.segments.append(segment)
 
     def find_and_write(self, ttg_node_file, find, replace):
         '''Takes a path to a ttg setup and searches for a string and replaces

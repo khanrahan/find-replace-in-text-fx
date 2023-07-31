@@ -2,7 +2,7 @@
 
 Plugin for [Autodesk Flame](http://www.autodesk.com/products/flame)
 
-Find and replace text inside of Text Timeline FX without having to enter the Text editor.  Works on segments or sequences containing segments with Text Timeline FX applied.
+Find and replace text inside of Text Timeline FX without having to enter the Text editor.  Works on segments or sequences containing segments with Text Timeline FX applied.  If the segment is hidden, it will be skipped.
 
 ![screenshot](screenshot.png)
 
