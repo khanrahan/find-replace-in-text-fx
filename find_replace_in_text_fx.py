@@ -3,13 +3,13 @@
 Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
-Script Version: 1.0.1
+Script Version: 1.1.1
 Flame Version: 2021.1
 
 URL: https://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
-Update Date: 07.31.23
+Update Date: 09.19.23
 
 Description:
 
@@ -43,7 +43,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 import flame
 
 TITLE = 'Find and Replace in Text TimelineFX'
-VERSION_INFO = (1, 0, 1)
+VERSION_INFO = (1, 1, 1)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
 MESSAGE_PREFIX = '[PYTHON HOOK]'
@@ -74,7 +74,7 @@ class FlameButton(QtWidgets.QPushButton):
         self.setText(button_name)
         self.setMinimumSize(QtCore.QSize(button_width, 28))
         self.setMaximumSize(QtCore.QSize(button_max_width, 28))
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.clicked.connect(connect)
         if button_color == 'normal':
             self.setStyleSheet('''
@@ -192,7 +192,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
         self.setMinimumHeight(28)
         self.setMinimumWidth(width)
         self.setMaximumWidth(max_width)
-        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setStyleSheet('''
             QLineEdit {
                 color: rgb(154, 154, 154);
@@ -502,7 +502,7 @@ class FindReplaceInTextFX(object):
         for item in self.selection:
             if isinstance(item, flame.PySegment):
                 # hidden segments cause crash
-                if item.hidden.get_value():
+                if not item.hidden.get_value():
                     for effect in item.effects:
                         if effect.type == 'Text':
                             self.segments.append(item)
@@ -589,9 +589,6 @@ class FindReplaceInTextFX(object):
         # Mac needs this to close the window
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        # FlameLineEdit class needs this
-        self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
-
         # Center Window
         resolution = QtWidgets.QDesktopWidget().screenGeometry()
 
@@ -610,11 +607,6 @@ class FindReplaceInTextFX(object):
         # Buttons
         self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
         self.cancel_btn = FlameButton('Cancel', self.window.close)
-
-        # Tab Order
-        # self.window.setTabOrder(self.find, self.replace)
-        # self.window.setTabOrder(self.replace, self.ok_btn)
-        # self.window.setTabOrder(self.ok_btn, self.cancel_btn)
 
         # Layout
         self.grid = QtWidgets.QGridLayout()
