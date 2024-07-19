@@ -3,13 +3,13 @@
 Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
-Script Version: 1.1.1
-Flame Version: 2021.1
+Script Version: 2.0.0
+Flame Version: 2022
 
 URL: https://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
-Update Date: 09.19.23
+Update Date: 07.18.24
 
 Description:
 
@@ -38,12 +38,11 @@ To Install:
 '''
 
 
-from __future__ import print_function
 from PySide2 import QtCore, QtGui, QtWidgets
 import flame
 
 TITLE = 'Find and Replace in Text TimelineFX'
-VERSION_INFO = (1, 1, 1)
+VERSION_INFO = (2, 0, 0, "beta")
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
 MESSAGE_PREFIX = '[PYTHON HOOK]'
@@ -671,7 +670,7 @@ def get_media_panel_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
                           'execute': find_replace_sequences,
-                          'minimumVersion': '2021.1'}]
+                          'minimumVersion': '2022.0.0.0'}]
             }]
 
 
@@ -681,5 +680,5 @@ def get_timeline_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
                           'execute': find_replace_segments,
-                          'minimumVersion': '2021.1'}]
+                          'minimumVersion': '2022.0.0.0'}]
             }]
