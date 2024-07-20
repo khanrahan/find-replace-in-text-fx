@@ -37,8 +37,8 @@ To Install:
 """
 
 
-from PySide2 import QtCore, QtGui, QtWidgets
 import flame
+from PySide2 import QtCore, QtGui, QtWidgets
 
 TITLE = 'Find and Replace in Text TimelineFX'
 VERSION_INFO = (2, 0, 0, 'dev')
