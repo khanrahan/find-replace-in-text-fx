@@ -1,5 +1,4 @@
-
-'''
+"""
 Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
@@ -35,14 +34,14 @@ To Install:
 
     For a specific user, copy this file to:
     /opt/Autodesk/user/<user name>/python
-'''
+"""
 
 
 from PySide2 import QtCore, QtGui, QtWidgets
 import flame
 
 TITLE = 'Find and Replace in Text TimelineFX'
-VERSION_INFO = (2, 0, 0, "beta")
+VERSION_INFO = (2, 0, 0, 'dev')
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
 MESSAGE_PREFIX = '[PYTHON HOOK]'
@@ -51,7 +50,7 @@ TEMP_SETUP = '/var/tmp/temp'
 
 
 class FlameButton(QtWidgets.QPushButton):
-    '''
+    """
     Custom Qt Flame Button Widget v2.1
 
     button_name: button text [str]
@@ -64,7 +63,7 @@ class FlameButton(QtWidgets.QPushButton):
 
         button = FlameButton(
             'Button Name', do_something__when_pressed, button_color='blue')
-    '''
+    """
 
     def __init__(self, button_name, connect, button_color='normal', button_width=150,
                  button_max_width=150):
@@ -76,12 +75,12 @@ class FlameButton(QtWidgets.QPushButton):
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.clicked.connect(connect)
         if button_color == 'normal':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QPushButton {
                     color: rgb(154, 154, 154);
                     background-color: rgb(58, 58, 58);
                     border: none;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QPushButton:hover {
                     border: 1px solid rgb(90, 90, 90)}
                 QPushButton:pressed {
@@ -95,14 +94,14 @@ class FlameButton(QtWidgets.QPushButton):
                 QToolTip {
                     color: rgb(170, 170, 170);
                     background-color: rgb(71, 71, 71);
-                    border: 10px solid rgb(71, 71, 71)}''')
+                    border: 10px solid rgb(71, 71, 71)}""")
         elif button_color == 'blue':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QPushButton {
                     color: rgb(190, 190, 190);
                     background-color: rgb(0, 110, 175);
                     border: none;
-                    font: 12px "Discreet"}
+                    font: 12px 'Discreet'}
                 QPushButton:hover {
                     border: 1px solid rgb(90, 90, 90)}
                 QPushButton:pressed {
@@ -115,11 +114,11 @@ class FlameButton(QtWidgets.QPushButton):
                 QToolTip {
                     color: rgb(170, 170, 170);
                     background-color: rgb(71, 71, 71);
-                    border: 10px solid rgb(71, 71, 71)}''')
+                    border: 10px solid rgb(71, 71, 71)}""")
 
 
 class FlameLabel(QtWidgets.QLabel):
-    '''
+    """
     Custom Qt Flame Label Widget v2.1
 
     label_name:  text displayed [str]
@@ -130,7 +129,7 @@ class FlameLabel(QtWidgets.QLabel):
     Usage:
 
         label = FlameLabel('Label Name', 'normal', 300)
-    '''
+    """
 
     def __init__(self, label_name, label_type='normal', label_width=150):
         super(FlameLabel, self).__init__()
@@ -143,34 +142,34 @@ class FlameLabel(QtWidgets.QLabel):
         # Set label stylesheet based on label_type
 
         if label_type == 'normal':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
         elif label_type == 'underline':
             self.setAlignment(QtCore.Qt.AlignCenter)
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
                     border-bottom: 1px inset rgb(40, 40, 40);
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
         elif label_type == 'background':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
                     background-color: rgb(30, 30, 30);
                     padding-left: 5px;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
 
 
 class FlameLineEdit(QtWidgets.QLineEdit):
-    '''
+    """
     Custom Qt Flame Line Edit Widget v2.1
 
     Main window should include this: window.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -182,7 +181,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
     Usage:
 
         line_edit = FlameLineEdit('Some text here')
-    '''
+    """
 
     def __init__(self, text, width=150, max_width=2000):
         super(FlameLineEdit, self).__init__()
@@ -192,7 +191,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
         self.setMinimumWidth(width)
         self.setMaximumWidth(max_width)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setStyleSheet('''
+        self.setStyleSheet("""
             QLineEdit {
                 color: rgb(154, 154, 154);
                 background-color: rgb(55, 65, 75);
@@ -200,7 +199,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
                 selection-background-color: rgb(184, 177, 167);
                 border: 1px solid rgb(55, 65, 75);
                 padding-left: 5px;
-                font: 14px "Discreet"}
+                font: 14px 'Discreet'}
             QLineEdit:focus {background-color: rgb(73, 86, 99)}
             QLineEdit:hover {border: 1px solid rgb(90, 90, 90)}
             QLineEdit:disabled {
@@ -210,11 +209,11 @@ class FlameLineEdit(QtWidgets.QLineEdit):
             QToolTip {
                 color: rgb(170, 170, 170);
                 background-color: rgb(71, 71, 71);
-                border: none}''')
+                border: none}""")
 
 
 class FlameProgressWindow(QtWidgets.QDialog):
-    '''
+    """
     Custom Qt Flame Progress Window
 
     FlameProgressWindow(window_title, num_to_do[, text=None, enable_done_button=False,
@@ -241,7 +240,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
         To enable or disable done button - True or False:
 
             self.progress_window.enable_done_button(True)
-    '''
+    """
 
     def __init__(
             self,
@@ -297,7 +296,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
             font: 18px "Discreet"''')
         self.message_text_edit = QtWidgets.QTextEdit('')
         self.message_text_edit.setDisabled(True)
-        self.message_text_edit.setStyleSheet('''
+        self.message_text_edit.setStyleSheet("""
             QTextEdit {
                 color: rgb(154, 154, 154);
                 background-color: rgb(36, 36, 36);
@@ -306,7 +305,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
                 border: none;
                 padding-left: 20px;
                 padding-right: 20px;
-                font: 12px "Discreet"}''')
+                font: 12px 'Discreet'}""")
         self.message_text_edit.setText(text)
 
         # Progress bar
@@ -315,14 +314,14 @@ class FlameProgressWindow(QtWidgets.QDialog):
         self.progress_bar.setMaximum(num_to_do)
         self.progress_bar.setMaximumHeight(5)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setStyleSheet('''
+        self.progress_bar.setStyleSheet("""
             QProgressBar {
                 color: rgb(154, 154, 154);
                 background-color: rgb(45, 45, 45);
-                font: 14px "Discreet";
+                font: 14px 'Discreet';
                 border: none}
             QProgressBar:chunk {
-                background-color: rgb(0, 110, 176)}''')
+                background-color: rgb(0, 110, 176)}""")
 
         self.cancel_button = FlameButton(
                 'Cancel',
@@ -413,7 +412,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
 
 
 class FindReplaceInTextFX(object):
-    '''Find and replace some text within a Text timelineFX.'''
+    """Find and replace some text within a Text timelineFX."""
 
     def __init__(self, selection, **kwargs):
 
@@ -437,8 +436,7 @@ class FindReplaceInTextFX(object):
 
     @staticmethod
     def get_parent_sequence(child):
-        '''Returns object of the container sequence for the given flame object.'''
-
+        """Returns object of the container sequence for the given flame object."""
         parents = []
 
         while child:
@@ -452,52 +450,48 @@ class FindReplaceInTextFX(object):
 
     @staticmethod
     def save_text_timeline_fx(segment, setup_path):
-        '''Save out a TTG node setup.'''
-
+        """Save out a TTG node setup."""
         for timeline_fx in segment.effects:
             if timeline_fx.type == 'Text':
                 timeline_fx.save_setup(setup_path)
 
     @staticmethod
     def load_text_timeline_fx(segment, setup_path):
-        '''Load a TTG node setup to segment.'''
-
+        """Load a TTG node setup to segment."""
         for timeline_fx in segment.effects:
             if timeline_fx.type == 'Text':
                 timeline_fx.load_setup(setup_path)
 
     @staticmethod
     def add_timeline_fx(segment, effect_type):
-        '''Add Timeline FX of effect_type to segment.'''
-
+        """Add Timeline FX of effect_type to segment."""
         segment.create_effect(effect_type)
 
     @staticmethod
     def remove_timeline_fx(segment, effect_type):
-        '''Remove Timeline FX of specified type from segment.  You have to remove before
-        you can load a setup.  The setup load will not overwrite.'''
+        """Remove Timeline FX of specified type from segment.
 
+        You have to remove before you can load a setup.  The setup load will not
+        overwrite.
+        """
         for timeline_fx in segment.effects:
             if timeline_fx.type == effect_type:
                 flame.delete(timeline_fx)
 
     @staticmethod
     def convert_to_ttg_text(string):
-        '''Returns TTG style string'''
-
+        """Returns TTG style string"""
         return ' '.join(str(ord(character)) for character in list(string))
 
     @staticmethod
     def message(string):
-        '''Print to the shell window.'''
-
+        """Print to the shell window."""
         print(' '.join([MESSAGE_PREFIX, string]))
 
     def filter_segments(self):
-        '''Needed to filter the selection results of a segment.  Flame API
+        """Needed to filter the selection results of a segment.  Flame API
         returns the segment or segments that are selected AND the timelineFX
-        on those segments.'''
-
+        on those segments."""
         for item in self.selection:
             if isinstance(item, flame.PySegment):
                 # hidden segments cause crash
@@ -507,8 +501,7 @@ class FindReplaceInTextFX(object):
                             self.segments.append(item)
 
     def filter_sequences(self):
-        '''Filter out just segments that have Text TimelineFX.'''
-
+        """Filter out just segments that have Text TimelineFX."""
         for timeline in self.selection:
             for version in timeline.versions:
                 for track in version.tracks:
@@ -520,9 +513,11 @@ class FindReplaceInTextFX(object):
                                     self.segments.append(segment)
 
     def find_and_write(self, ttg_node_file, find, replace):
-        '''Takes a path to a ttg setup and searches for a string and replaces
-        it.'''
+        """Find strings to replace and write out new file.
 
+        Takes a path to a ttg setup and searches for a string and replaces
+        it.
+        """
         ttg_node_file += '.ttg_node'  # append extension
 
         try:
@@ -539,8 +534,7 @@ class FindReplaceInTextFX(object):
             ttg.write(new)
 
     def process_segment(self, segment, find, replace):
-        ''' '''
-
+        """ """
         self.save_text_timeline_fx(segment, TEMP_SETUP)
         self.remove_timeline_fx(segment, 'Text')
         self.add_timeline_fx(segment, 'Text')
@@ -548,11 +542,10 @@ class FindReplaceInTextFX(object):
         self.load_text_timeline_fx(segment, TEMP_SETUP)
 
     def main_window(self):
-        '''The only popup window.'''
+        """The only popup window."""
 
         def okay_button():
-            '''Execute these when OK is pressed.'''
-
+            """Execute these when OK is pressed."""
             self.window.close()
 
             self.progress_window = FlameProgressWindow('Progress', len(self.segments))
@@ -635,20 +628,17 @@ class FindReplaceInTextFX(object):
 
 
 def find_replace_segments(selection):
-    '''Call the class with a target destination.'''
-
+    """Call the class with a target destination."""
     FindReplaceInTextFX(selection, target='segments')
 
 
 def find_replace_sequences(selection):
-    '''Call the class with a target destination.'''
-
+    """Call the class with a target destination."""
     FindReplaceInTextFX(selection, target='sequences')
 
 
 def scope_timeline(selection):
-    '''Return True if selection is a sequence.'''
-
+    """Return True if selection is a sequence."""
     for item in selection:
         if isinstance(item, flame.PySequence):
             return True
@@ -656,8 +646,7 @@ def scope_timeline(selection):
 
 
 def scope_timeline_segment(selection):
-    '''Return True if selection is a timeline segment.'''
-
+    """Return True if selection is a timeline segment."""
     for item in selection:
         if isinstance(item, flame.PySegment):
             return True
@@ -665,7 +654,7 @@ def scope_timeline_segment(selection):
 
 
 def get_media_panel_custom_ui_actions():
-
+    """ """
     return [{'name': 'Edit...',
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
@@ -675,7 +664,7 @@ def get_media_panel_custom_ui_actions():
 
 
 def get_timeline_custom_ui_actions():
-
+    """ """
     return [{'name': 'Edit...',
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
