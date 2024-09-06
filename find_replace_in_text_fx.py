@@ -411,7 +411,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
             pass
 
 
-class FindReplaceInTextFX(object):
+class FindReplaceInTextFX:
     """Find and replace some text within a Text timelineFX."""
 
     def __init__(self, selection, **kwargs):
