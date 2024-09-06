@@ -551,11 +551,14 @@ class FindReplaceInTextFX:
                     break
 
                 self.progress_window.set_text(
-                        f'Replacing {self.find.text()} with {self.replace.text()} on {segment.name.get_value()} in {self.get_parent_sequence(segment).name.get_value()}')
+                        f'Replacing {self.find.text()} with {self.replace.text()} ' +
+                        f'on {segment.name.get_value()} in ' +
+                        f'{self.get_parent_sequence(segment).name.get_value()}')
 
                 self.process_segment(segment, self.find.text(), self.replace.text())
 
-                self.progress_window.set_progress_value(self.segments.index(segment) + 1)
+                self.progress_window.set_progress_value(
+                        self.segments.index(segment) + 1)
 
             self.progress_window.close()
 
