@@ -50,8 +50,7 @@ TEMP_SETUP = '/var/tmp/temp'
 
 
 class FlameButton(QtWidgets.QPushButton):
-    """
-    Custom Qt Flame Button Widget v2.1
+    """Custom Qt Flame Button Widget v2.1
 
     button_name: button text [str]
     connect: execute when clicked [function]
@@ -118,8 +117,7 @@ class FlameButton(QtWidgets.QPushButton):
 
 
 class FlameLabel(QtWidgets.QLabel):
-    """
-    Custom Qt Flame Label Widget v2.1
+    """Custom Qt Flame Label Widget v2.1
 
     label_name:  text displayed [str]
     label_type:  (optional) select from different styles:
@@ -169,8 +167,7 @@ class FlameLabel(QtWidgets.QLabel):
 
 
 class FlameLineEdit(QtWidgets.QLineEdit):
-    """
-    Custom Qt Flame Line Edit Widget v2.1
+    """Custom Qt Flame Line Edit Widget v2.1
 
     Main window should include this: window.setFocusPolicy(QtCore.Qt.StrongFocus)
 
@@ -213,8 +210,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
 
 
 class FlameProgressWindow(QtWidgets.QDialog):
-    """
-    Custom Qt Flame Progress Window
+    """Custom Qt Flame Progress Window
 
     FlameProgressWindow(window_title, num_to_do[, text=None, enable_done_button=False,
                         parent=None])
@@ -224,8 +220,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
     text: message to show in window [str]
     enable_cancel_button: enable cancel button, default is False [bool]
 
-    Examples:
-
+    Usage:
         To create window:
 
             self.progress_window = FlameProgressWindow(
@@ -415,7 +410,7 @@ class FindReplaceInTextFX:
     """Find and replace some text within a Text timelineFX."""
 
     def __init__(self, selection, **kwargs):
-
+        """Initialize!"""
         self.selection = selection
         self.target = kwargs['target']
 
@@ -488,9 +483,11 @@ class FindReplaceInTextFX:
         print(' '.join([MESSAGE_PREFIX, string]))
 
     def filter_segments(self):
-        """Needed to filter the selection results of a segment.  Flame API
-        returns the segment or segments that are selected AND the timelineFX
-        on those segments."""
+        """Needed to filter the selection results of a segment.
+
+        Flame API returns the segment or segments that are selected AND the timelineFX
+        on those segments.
+        """
         for item in self.selection:
             if isinstance(item, flame.PySegment):
                 # hidden segments cause crash
@@ -533,7 +530,7 @@ class FindReplaceInTextFX:
             ttg.write(new)
 
     def process_segment(self, segment, find, replace):
-        """ """
+        """Find and replace on a single segment object."""
         self.save_text_timeline_fx(segment, TEMP_SETUP)
         self.remove_timeline_fx(segment, 'Text')
         self.add_timeline_fx(segment, 'Text')
@@ -653,7 +650,7 @@ def scope_timeline_segment(selection):
 
 
 def get_media_panel_custom_ui_actions():
-    """ """
+    """Add right click menu items for the Media Panel."""
     return [{'name': 'Edit...',
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
@@ -663,7 +660,7 @@ def get_media_panel_custom_ui_actions():
 
 
 def get_timeline_custom_ui_actions():
-    """ """
+    """Add right click menu items for the Timeline."""
     return [{'name': 'Edit...',
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
