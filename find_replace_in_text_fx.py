@@ -43,7 +43,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 TITLE = 'Find and Replace in Text TimelineFX'
 VERSION_INFO = (2, 0, 0, 'dev')
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
-TITLE_VERSION = '{} v{}'.format(TITLE, VERSION)
+TITLE_VERSION = f'{TITLE} v{VERSION}'
 MESSAGE_PREFIX = '[PYTHON HOOK]'
 
 TEMP_SETUP = '/var/tmp/temp'
@@ -420,7 +420,7 @@ class FindReplaceInTextFX(object):
         self.target = kwargs['target']
 
         self.message(TITLE_VERSION)
-        self.message('Script called from {}'.format(__file__))
+        self.message(f'Script called from {__file__}')
 
         self.segments = []
 
@@ -429,8 +429,7 @@ class FindReplaceInTextFX(object):
         if self.target == 'sequences':
             self.filter_sequences()
 
-        self.message('Found {} segments with Text TimelineFX...'.format(
-                len(self.segments)))
+        self.message(f'Found {len(self.segments)} segments with Text TimelineFX...')
 
         self.main_window()
 
@@ -555,11 +554,7 @@ class FindReplaceInTextFX(object):
                     break
 
                 self.progress_window.set_text(
-                        'Replacing {} with {} on {} in {}'.format(
-                            self.find.text(),
-                            self.replace.text(),
-                            segment.name.get_value(),
-                            self.get_parent_sequence(segment).name.get_value()))
+                        f'Replacing {self.find.text()} with {self.replace.text()} on {segment.name.get_value()} in {self.get_parent_sequence(segment).name.get_value()}')
 
                 self.process_segment(segment, self.find.text(), self.replace.text())
 
