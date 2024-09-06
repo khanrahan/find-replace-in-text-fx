@@ -44,7 +44,7 @@ TITLE = 'Find and Replace in Text TimelineFX'
 VERSION_INFO = (2, 0, 0, 'dev')
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = f'{TITLE} v{VERSION}'
-MESSAGE_PREFIX = '[PYTHON HOOK]'
+MESSAGE_PREFIX = '[PYTHON]'
 
 TEMP_SETUP = '/var/tmp/temp'
 
