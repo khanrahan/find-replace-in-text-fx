@@ -634,18 +634,22 @@ def find_replace_sequences(selection):
 
 def scope_timeline(selection):
     """Return True if selection is a sequence."""
-    for item in selection:
-        if isinstance(item, flame.PySequence):
-            return True
-    return False
+    return all(isinstance(item, flame.PySequence) for item in selection)
 
 
 def scope_timeline_segment(selection):
-    """Return True if selection is a timeline segment."""
-    for item in selection:
-        if isinstance(item, flame.PySegment):
-            return True
-    return False
+    """Return bool for whether selection contains only valid objects.
+
+    PyTransition is included because a shift + left click range selection of segments
+    will include the transitions in between.  Otherwise, the artist will not be
+    presented with the menu item.
+    """
+    valid_objects = (
+            flame.PyClip,
+            flame.PySegment,
+            flame.PyTransition)
+
+    return all(isinstance(item, valid_objects) for item in selection)
 
 
 def get_media_panel_custom_ui_actions():
