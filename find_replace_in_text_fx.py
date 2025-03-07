@@ -46,7 +46,7 @@ VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = f'{TITLE} v{VERSION}'
 MESSAGE_PREFIX = '[PYTHON]'
 
-TEMP_SETUP = '/var/tmp/temp'
+TEMP_SETUP = '/var/tmp/find_and_replace_in_text_timelinefx_temp'
 
 
 class FlameButton(QtWidgets.QPushButton):
