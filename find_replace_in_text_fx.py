@@ -2,13 +2,13 @@
 Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
-Script Version: 2.0.0
-Flame Version: 2022
+Script Version: 3.0.0
+Flame Version: 2025
 
 URL: http://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
-Update Date: 09.06.24
+Update Date: 03.06.25
 
 Description:
 
@@ -30,23 +30,26 @@ Menus:
 To Install:
 
     For all users, copy this file to:
-    /opt/Autodesk/shared/python
+    /opt/Autodesk/shared/python/
 
-    For a specific user, copy this file to:
-    /opt/Autodesk/user/<user name>/python
+    For a specific user on Linux, copy this file to:
+    /home/<user_name>/flame/python/
+
+    For a specific user on Mac, copy this file to:
+    /Users/<user_name>/Library/Preferences/Autodesk/flame/python/
 """
 
 
 import flame
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'Find and Replace in Text TimelineFX'
-VERSION_INFO = (2, 0, 0)
+VERSION_INFO = (3, 0, 0)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 TITLE_VERSION = f'{TITLE} v{VERSION}'
 MESSAGE_PREFIX = '[PYTHON]'
 
-TEMP_SETUP = '/var/tmp/temp'
+TEMP_SETUP = '/var/tmp/find_and_replace_in_text_timelinefx_temp'
 
 
 class FlameButton(QtWidgets.QPushButton):
@@ -277,7 +280,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
         self.setMaximumSize(QtCore.QSize(500, 330))
         self.setStyleSheet('background-color: rgb(36, 36, 36)')
 
-        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        resolution = QtGui.QGuiApplication.primaryScreen().screenGeometry()
         self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
                   (resolution.height() / 2) - (self.frameSize().height() / 2))
 
@@ -417,6 +420,9 @@ class FindReplaceInTextFX:
         self.message(TITLE_VERSION)
         self.message(f'Script called from {__file__}')
 
+        self.find = ''
+        self.replace = ''
+
         self.segments = []
 
         if self.target == 'segments':
@@ -540,6 +546,14 @@ class FindReplaceInTextFX:
     def main_window(self):
         """The only popup window."""
 
+        def update_find():
+            """Update object attribute with string from line edit."""
+            self.find = self.find_line_edit.text()
+
+        def update_replace():
+            """Update object attribute with string from line edit."""
+            self.replace = self.replace_line_edit.text()
+
         def okay_button():
             """Execute these when OK is pressed."""
             self.window.close()
@@ -551,11 +565,11 @@ class FindReplaceInTextFX:
                     break
 
                 self.progress_window.set_text(
-                        f'Replacing {self.find.text()} with {self.replace.text()} ' +
+                        f'Replacing {self.find} with {self.replace} ' +
                         f'on {segment.name.get_value()} in ' +
                         f'{self.get_parent_sequence(segment).name.get_value()}')
 
-                self.process_segment(segment, self.find.text(), self.replace.text())
+                self.process_segment(segment, self.find, self.replace)
 
                 self.progress_window.set_progress_value(
                         self.segments.index(segment) + 1)
@@ -576,8 +590,11 @@ class FindReplaceInTextFX:
         # Mac needs this to close the window
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        # FlameLineEdit class needs this
+        self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
+
         # Center Window
-        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        resolution = QtGui.QGuiApplication.primaryScreen().screenGeometry()
 
         self.window.move(
                 (resolution.width() / 2) - (self.window.frameSize().width() / 2),
@@ -588,8 +605,10 @@ class FindReplaceInTextFX:
         self.replace_label = FlameLabel('Replace', 'normal')
 
         # Line Edits
-        self.find = FlameLineEdit('')
-        self.replace = FlameLineEdit('')
+        self.find_line_edit = FlameLineEdit('')
+        self.find_line_edit.textChanged.connect(update_find)
+        self.replace_line_edit = FlameLineEdit('')
+        self.replace_line_edit.textChanged.connect(update_replace)
 
         # Buttons
         self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
@@ -601,9 +620,9 @@ class FindReplaceInTextFX:
         self.grid.setHorizontalSpacing(10)
 
         self.grid.addWidget(self.find_label, 0, 0)
-        self.grid.addWidget(self.find, 0, 1)
+        self.grid.addWidget(self.find_line_edit, 0, 1)
         self.grid.addWidget(self.replace_label, 1, 0)
-        self.grid.addWidget(self.replace, 1, 1)
+        self.grid.addWidget(self.replace_line_edit, 1, 1)
 
         self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addStretch(1)
@@ -611,9 +630,9 @@ class FindReplaceInTextFX:
         self.hbox.addWidget(self.ok_btn)
 
         self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setMargin(20)
+        self.vbox.setContentsMargins(20, 20, 20, 20)
         self.vbox.addLayout(self.grid)
-        self.vbox.insertSpacing(2, 20)
+        self.vbox.addSpacing(20)
         self.vbox.addLayout(self.hbox)
 
         self.window.setLayout(self.vbox)
@@ -658,7 +677,7 @@ def get_media_panel_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
                           'execute': find_replace_sequences,
-                          'minimumVersion': '2022.0.0.0'}]
+                          'minimumVersion': '2025.0.0.0'}]
             }]
 
 
@@ -668,5 +687,5 @@ def get_timeline_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
                           'execute': find_replace_segments,
-                          'minimumVersion': '2022.0.0.0'}]
+                          'minimumVersion': '2025.0.0.0'}]
             }]
