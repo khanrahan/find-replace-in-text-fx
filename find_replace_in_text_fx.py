@@ -3,7 +3,7 @@ Script Name: Find and Replace in Text TimelineFX
 Written by: Kieran Hanrahan
 
 Script Version: 2.0.0
-Flame Version: 2022
+Flame Version: 2025
 
 URL: http://github.com/khanrahan/find-replace-in-text-fx
 
@@ -38,7 +38,7 @@ To Install:
 
 
 import flame
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'Find and Replace in Text TimelineFX'
 VERSION_INFO = (2, 0, 0)
@@ -277,7 +277,7 @@ class FlameProgressWindow(QtWidgets.QDialog):
         self.setMaximumSize(QtCore.QSize(500, 330))
         self.setStyleSheet('background-color: rgb(36, 36, 36)')
 
-        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        resolution = QtGui.QGuiApplication.primaryScreen().screenGeometry()
         self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
                   (resolution.height() / 2) - (self.frameSize().height() / 2))
 
@@ -576,8 +576,11 @@ class FindReplaceInTextFX:
         # Mac needs this to close the window
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        # FlameLineEdit class needs this
+        self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
+
         # Center Window
-        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        resolution = QtGui.QGuiApplication.primaryScreen().screenGeometry()
 
         self.window.move(
                 (resolution.width() / 2) - (self.window.frameSize().width() / 2),
@@ -611,7 +614,7 @@ class FindReplaceInTextFX:
         self.hbox.addWidget(self.ok_btn)
 
         self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setMargin(20)
+        self.vbox.setContentsMargins(20, 20, 20, 20)
         self.vbox.addLayout(self.grid)
         self.vbox.insertSpacing(2, 20)
         self.vbox.addLayout(self.hbox)
@@ -658,7 +661,7 @@ def get_media_panel_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline,
                           'execute': find_replace_sequences,
-                          'minimumVersion': '2022.0.0.0'}]
+                          'minimumVersion': '2025.0.0.0'}]
             }]
 
 
@@ -668,5 +671,5 @@ def get_timeline_custom_ui_actions():
              'actions': [{'name': 'Find and Replace in Text TimelineFX',
                           'isVisible': scope_timeline_segment,
                           'execute': find_replace_segments,
-                          'minimumVersion': '2022.0.0.0'}]
+                          'minimumVersion': '2025.0.0.0'}]
             }]
