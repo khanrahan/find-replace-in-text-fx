@@ -417,6 +417,9 @@ class FindReplaceInTextFX:
         self.message(TITLE_VERSION)
         self.message(f'Script called from {__file__}')
 
+        self.find = ''
+        self.replace = ''
+
         self.segments = []
 
         if self.target == 'segments':
@@ -540,6 +543,14 @@ class FindReplaceInTextFX:
     def main_window(self):
         """The only popup window."""
 
+        def update_find():
+            """Update object attribute with string from line edit."""
+            self.find = self.find_line_edit.text()
+
+        def update_replace():
+            """Update object attribute with string from line edit."""
+            self.replace = self.replace_line_edit.text()
+
         def okay_button():
             """Execute these when OK is pressed."""
             self.window.close()
@@ -551,11 +562,11 @@ class FindReplaceInTextFX:
                     break
 
                 self.progress_window.set_text(
-                        f'Replacing {self.find.text()} with {self.replace.text()} ' +
+                        f'Replacing {self.find} with {self.replace} ' +
                         f'on {segment.name.get_value()} in ' +
                         f'{self.get_parent_sequence(segment).name.get_value()}')
 
-                self.process_segment(segment, self.find.text(), self.replace.text())
+                self.process_segment(segment, self.find, self.replace)
 
                 self.progress_window.set_progress_value(
                         self.segments.index(segment) + 1)
@@ -591,8 +602,10 @@ class FindReplaceInTextFX:
         self.replace_label = FlameLabel('Replace', 'normal')
 
         # Line Edits
-        self.find = FlameLineEdit('')
-        self.replace = FlameLineEdit('')
+        self.find_line_edit = FlameLineEdit('')
+        self.find_line_edit.textChanged.connect(update_find)
+        self.replace_line_edit = FlameLineEdit('')
+        self.replace_line_edit.textChanged.connect(update_replace)
 
         # Buttons
         self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
@@ -604,9 +617,9 @@ class FindReplaceInTextFX:
         self.grid.setHorizontalSpacing(10)
 
         self.grid.addWidget(self.find_label, 0, 0)
-        self.grid.addWidget(self.find, 0, 1)
+        self.grid.addWidget(self.find_line_edit, 0, 1)
         self.grid.addWidget(self.replace_label, 1, 0)
-        self.grid.addWidget(self.replace, 1, 1)
+        self.grid.addWidget(self.replace_line_edit, 1, 1)
 
         self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addStretch(1)
