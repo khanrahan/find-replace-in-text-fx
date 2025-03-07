@@ -8,7 +8,7 @@ Flame Version: 2025
 URL: http://github.com/khanrahan/find-replace-in-text-fx
 
 Creation Date: 07.21.22
-Update Date: 09.06.24
+Update Date: 03.06.25
 
 Description:
 
